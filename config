@@ -1,0 +1,29 @@
+[aws]
+aws_region_name = us-east-1  # Update with your desired region
+
+[cluster default]
+key_name = my-key-pair
+initial_queue_size = 200
+scheduler = slurm
+scheduler_slots = 1
+master_instance_type = c5.large
+compute_instance_type = c5.large
+master_root_volume_size = 100
+compute_root_volume_size = 100
+cluster_type = spot
+spot_price = 0.5  # Adjust according to your budget
+spot_bid_percentage = 100
+vpc_settings = default
+enable_efa = compute
+enable_intel_hpc_platform = compute
+scaling_settings = default
+additional_packages = gcc gmp-devel
+
+[scaling default]
+scaledown_idletime = 5
+
+[vpc default]
+vpc_id = vpc-12345678  # Update with your VPC ID
+master_subnet_id = subnet-12345678  # Update with your subnet ID
+compute_subnet_id = subnet-12345678  # Update with your subnet ID
+
