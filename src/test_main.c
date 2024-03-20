@@ -63,7 +63,7 @@ void test_trial_division() {
     mpz_init_set_ui(end, 100000); // Adjust end to a smaller value for quicker testing with dynamic number of threads
     trial_division(start, end);
     // This test checks if the function runs without error and is adjusted for a quicker execution
-    printf("test_trial_division passed with adjusted range for dynamic threads efficiency. Upper bound used: 100000.\n");
+    printf("test_trial_division passed with adjusted range for dynamic threads efficiency. Upper bound used: 100,000.\n");
     mpz_clear(start);
     mpz_clear(end);
 }
