@@ -19,27 +19,39 @@ void generate_large_number(mpz_t num) {
 
 // Function to perform trial division to find prime numbers in a given range, skipping even numbers
 void trial_division(const mpz_t start, const mpz_t end) {
-    mpz_t n, divisor; // Declare variables for the current number and divisor
-    mpz_inits(n, divisor, NULL); // Initialize the variables
+    FILE *primes_file = fopen("primes.txt", "a"); // Open the primes.txt file for appending
+    if (!primes_file) {
+        perror("Failed to open primes.txt");
+        return;
+    }
+
+    mpz_t n; // Declare variable for the current number
+    mpz_init(n); // Initialize the variable
     // Ensure n starts from an odd number if start is even
     if (mpz_even_p(start)) mpz_add_ui(n, start, 1);
     else mpz_set(n, start);
+
     while (mpz_cmp(n, end) <= 0) { // Loop until n exceeds end
         int is_prime = 1; // Assume n is prime
+        mpz_t divisor; // Declare variable for divisor
+        mpz_init(divisor); // Initialize the divisor variable
         mpz_set_ui(divisor, 3); // Start divisor from 3, skipping 2 (even number)
         while (mpz_cmp(divisor, n) < 0) { // Loop until divisor equals n
             if (mpz_divisible_p(n, divisor)) { // Check if n is divisible by divisor
                 is_prime = 0; // n is not prime
+                generate_large_number(n); // Generate a new number
                 break; // Exit loop
             }
             mpz_add_ui(divisor, divisor, 2); // Increment divisor by 2, skipping even numbers
         }
         if (is_prime) { // If n is prime
-            gmp_printf("Prime candidate: %Zd\n", n); // Print the prime number
+            gmp_fprintf(primes_file, "%Zd\n", n); // Write the prime number to the file
         }
         mpz_add_ui(n, n, 2); // Increment n by 2, skipping even numbers
+        mpz_clear(divisor); // Clear the divisor variable
     }
-    mpz_clears(n, divisor, NULL); // Clear the variables
+    mpz_clear(n); // Clear the n variable
+    fclose(primes_file); // Close the primes.txt file
 }
 
 int main(int argc, char *argv[]) {
