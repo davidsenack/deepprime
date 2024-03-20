@@ -1,32 +1,38 @@
-#!/bin/bash
+# Define the GitHub URL for the file to be downloaded
+GITHUB_FILE_URL="https://github.com/user/repo/path/to/file"
 
-# Clone the GitHub repository
-git clone https://github.com/your-username/your-repository.git
-cd your-repository
+# Define the paths for the SLURM job files
+TEST_JOB_FILE="scripts/main_job.slurm"
+MAIN_JOB_FILE="scripts/main_job.slurm"
 
-# Compile the C program
-gcc -o your_program your_program.c -lgmp
+# Download the file from GitHub
+wget $GITHUB_FILE_URL -O downloaded_file
 
-# Prepare SLURM job script
-cat <<EOF > slurm_job.sh
-#!/bin/bash
-
-#SBATCH --nodes=2             # Number of nodes
-#SBATCH --ntasks-per-node=1  # Number of tasks (processes) per node
-#SBATCH --time=00:30:00      # Maximum runtime of the job (HH:MM:SS)
-#SBATCH --job-name=my_program # Name of the job
-
-# Load any necessary modules or set up environment variables
-# (e.g., module load gcc)
-
-# Run your program
-./your_program    # Update with the name of your compiled program
-EOF
-
-# Submit the SLURM job
-sbatch slurm_job.sh
-
-# Monitor job status
-echo "Job submitted. Monitoring job status..."
-squeue -u $USER  # Replace $USER with your username
-
+# Check if the download was successful
+if [ $? -eq 0 ]; then
+    echo "File downloaded successfully."
+    
+    # Run the test job
+    sbatch $TEST_JOB_FILE
+    TEST_JOB_EXIT_CODE=$?
+    
+    # Check if the test job executed successfully
+    if [ $TEST_JOB_EXIT_CODE -eq 0 ]; then
+        echo "Test job executed successfully."
+        
+        # Run the main job
+        sbatch $MAIN_JOB_FILE
+        MAIN_JOB_EXIT_CODE=$?
+        
+        # Check if the main job executed successfully
+        if [ $MAIN_JOB_EXIT_CODE -eq 0 ]; then
+            echo "Main job executed successfully."
+        else
+            echo "Failed to execute the main job."
+        fi
+    else
+        echo "Failed to execute the test job."
+    fi
+else
+    echo "Failed to download the file."
+fi
