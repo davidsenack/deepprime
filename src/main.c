@@ -5,8 +5,6 @@
 #include <time.h> // Include for time functions
 #include <omp.h> // Include for OpenMP parallel programming support
 #include <mpi.h> // Include for MPI library for parallel programming across multiple nodes
-#include <gmp.h> // Duplicate include for GNU Multiple Precision Arithmetic Library, consider removing
-#include <time.h> // Duplicate include for time functions, consider removing
 
 #define MASTER_RANK 0 // Define master process rank for MPI
 
@@ -19,25 +17,27 @@ void generate_large_number(mpz_t num) {
     gmp_randclear(state); // Clear the state of the random number generator
 }
 
-// Function to perform trial division to find prime numbers in a given range
+// Function to perform trial division to find prime numbers in a given range, skipping even numbers
 void trial_division(const mpz_t start, const mpz_t end) {
     mpz_t n, divisor; // Declare variables for the current number and divisor
     mpz_inits(n, divisor, NULL); // Initialize the variables
-    mpz_set(n, start); // Set n to start of the range
+    // Ensure n starts from an odd number if start is even
+    if (mpz_even_p(start)) mpz_add_ui(n, start, 1);
+    else mpz_set(n, start);
     while (mpz_cmp(n, end) <= 0) { // Loop until n exceeds end
         int is_prime = 1; // Assume n is prime
-        mpz_set_ui(divisor, 2); // Start divisor from 2
+        mpz_set_ui(divisor, 3); // Start divisor from 3, skipping 2 (even number)
         while (mpz_cmp(divisor, n) < 0) { // Loop until divisor equals n
             if (mpz_divisible_p(n, divisor)) { // Check if n is divisible by divisor
                 is_prime = 0; // n is not prime
                 break; // Exit loop
             }
-            mpz_add_ui(divisor, divisor, 1); // Increment divisor
+            mpz_add_ui(divisor, divisor, 2); // Increment divisor by 2, skipping even numbers
         }
         if (is_prime) { // If n is prime
             gmp_printf("Prime candidate: %Zd\n", n); // Print the prime number
         }
-        mpz_add_ui(n, n, 1); // Increment n
+        mpz_add_ui(n, n, 2); // Increment n by 2, skipping even numbers
     }
     mpz_clears(n, divisor, NULL); // Clear the variables
 }
@@ -88,7 +88,7 @@ int main(int argc, char *argv[]) {
         if (thread_id == num_threads - 1) { // If this is the last thread
             mpz_set(omp_end, local_end); // Set the thread-local end to the local end
         } else {
-            mpz_add(omp_end, omp_start, omp_start); // Incorrect calculation of omp_end, should be adjusted
+            mpz_add(omp_end, omp_start, range); // Correct calculation of omp_end
             mpz_sub_ui(omp_end, omp_end, 1); // Adjust the thread-local end
         }
         trial_division(omp_start, omp_end); // Perform trial division in the thread-local range
