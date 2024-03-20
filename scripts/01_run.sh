@@ -1,3 +1,7 @@
+# Update and install necessary packages
+sudo apt-get update
+sudo apt-get install -y wget gcc libgmp-dev libopenmpi-dev make
+
 # Define the GitHub URL for the file to be downloaded
 GITHUB_FILE_URL="https://github.com/user/repo/path/to/file"
 
@@ -11,6 +15,9 @@ wget $GITHUB_FILE_URL -O downloaded_file
 # Check if the download was successful
 if [ $? -eq 0 ]; then
     echo "File downloaded successfully."
+    
+    # Compile the project
+    cd src && make all && cd ..
     
     # Run the test job
     sbatch $TEST_JOB_FILE
