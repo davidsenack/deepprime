@@ -18,6 +18,7 @@ enable_efa = compute
 enable_intel_hpc_platform = compute
 scaling_settings = default
 additional_packages = gcc gmp-devel
+user_data = s3://your-bucket/run.sh
 
 [scaling default]
 scaledown_idletime = 5
