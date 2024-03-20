@@ -1,13 +1,7 @@
 language: c
-
-# Specify dependencies
-addons:
-  apt:
-    packages:
-      - libgmp-dev
-
-# Build script
+compiler:
+  - gcc
 script:
-  - gcc -o test_main test_main.c your_program.c -lgmp -Ofast
+  - cd src
+  - make all
   - ./test_main
-
